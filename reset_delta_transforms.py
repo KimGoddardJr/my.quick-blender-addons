@@ -1,5 +1,4 @@
 import bpy
-import numpy as np
 
 
 bl_info = {
@@ -24,38 +23,18 @@ class reset_deltas(bpy.types.Operator):
     def execute(self,context):
         for obj in bpy.context.selected_objects:
             #raw location data
-            obj_L = obj.location
-            obj_R = obj.rotation_euler
-            obj_S = obj.scale
+            bpy.ops.object.transforms_to_deltas(mode='ALL')
 
             obj_deltaL = obj.delta_location
             obj_deltaR = obj.delta_rotation_euler
             obj_deltaS = obj.delta_scale
 
-            #convert to np array for quick math
-            obj_L_np = np.asarray(obj_L)
-            obj_R_np = np.asarray(obj_R)
-            obj_S_np = np.asarray(obj_S)
-
-            #obj_S_compensator = np.asarray((-1,-1,-1))
-
-            obj_deltaL_np = np.asarray(obj_deltaL)
-            obj_deltaR_np = np.asarray(obj_deltaR)
-            obj_deltaS_np = np.asarray(obj_deltaS)
-
-            #sum up new value
-            obj_L_new = obj_deltaL_np.__add__(obj_L_np)
-            obj_R_new = obj_R_np.__add__(obj_deltaR_np)
-            obj_S_new = np.multiply(obj_deltaS_np,obj_S_np)
-
-            #obj_S_compensated = obj_S_new.__add__(obj_S_compensator)
-
             # Assign new values to transforms as tuples           
-            obj.location = tuple(obj_L_new)
+            obj.location = obj_deltaL
             obj.delta_location = (0,0,0)
-            obj.rotation_euler = tuple(obj_R_new)
+            obj.rotation_euler = obj_deltaR
             obj.delta_rotation_euler = (0,0,0)
-            obj.scale = tuple(obj_S_new)
+            obj.scale = obj_deltaS
             obj.delta_scale = (1,1,1)
 
         return {'FINISHED'}
