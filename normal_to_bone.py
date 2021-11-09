@@ -37,9 +37,9 @@ class NormalToBone(bpy.types.Operator):
         self.SetBoneNormal(context.active_object, context.mode)
         return {'FINISHED'}
 
-    def GetNormal(self,mesh_components):
+    def GetLocationAndNormals(self,mesh,mesh_components):
         # Get the component index
-        normals = []
+        loc_and_norms = []
         num_verts = len(mesh_components)
         sel = np.zeros(num_verts, dtype=np.bool)
         mesh_components.foreach_get('select', sel)
@@ -47,10 +47,23 @@ class NormalToBone(bpy.types.Operator):
         for component in sel:
             if component:
                 normal = mesh_components[component].normal
-                normals.append(normal)
-        print(normals)
+                if mesh_components.bl_rna.name == 'Mesh Vertices':
+                    location = mesh_components[component].co
+                elif mesh_components.bl_rna.name == 'Mesh Edges':
+                    # the normal is the average of the two vertex normals of the edge
+                    v1 = mesh_components[component].vertices[0]
+                    v2 = mesh_components[component].vertices[1]
+                    normal = (mesh.vertices[v1].normal + mesh.vertices[v2].normal) / 2
+                    location = mesh.vertices[v1].co + mesh.vertices[v2].co
+                elif mesh_components.bl_rna.name == 'Mesh Polygons':
+                    location = mesh_components[component].center
                 
-        return normals
+                loc_and_norm = (location,normal)
+    
+        loc_and_norms.append(loc_and_norm)
+        print(loc_and_norms)
+                
+        return loc_and_norms
 
     # get the normal of selected vertex or face or edge
     def SetBoneNormal(self,obj, mode):
@@ -59,13 +72,16 @@ class NormalToBone(bpy.types.Operator):
         print(me)
         # Get the selected mode
         if mode == 'VERTEX':
-            normals = self.GetNormal(me.vertices)
+            pos_dirs = self.GetLocationAndNormals(me,me.vertices)
         elif mode == 'FACE':
-            # Get the selected face
-            normals = self.GetNormal(me.polygons)
+            pos_dirs = self.GetLocationAndNormals(me,me.polygons)
         elif mode == 'EDGE':
-            # switch to Vertices mode
-            raise NotImplementedError("Edge mode not implemented")
+            pos_dirs = self.GetLocationAndNormals(me,me.edges)
+
+        for pos, dir in pos_dirs:
+            rot_euler = self.NormalToRotation(dir)
+            self.CreateBoneAlignedToNormal(armature,pos,rot_euler)
+
 
     # Convert the normal of a vertex to a rotational value
     def NormalToRotation(self,normal):
@@ -82,30 +98,16 @@ class NormalToBone(bpy.types.Operator):
         
         return rot_euler
 
-    def CreateBoneAlignedToNormal(self,armature,normal):
-        # Get the rotation euler
-        rot_euler = self.NormalToRotation(normal)
-        # Create the bone
+    def CreateBoneAlignedToNormal(self,armature,pos,rot):
+        
         bone = armature.edit_bones.new("Bone")
-        # Set the bone's rotation
-        bone.rotation_euler = rot_euler
         # Set the bone's length
-        bone.tail = bone.head + mathutils.Vector((0,0,1))
+        bone.head = pos
+        bone.tail = pos + (bone.vector.normalized() * 0.5)
+
+        bone.rotation_euler = rot
         # Set the bone's roll
         bone.roll = 0
-        # Set the bone's parent
-        bone.parent = armature.edit_bones[0]
-        # Set the bone's name
-        bone.name = "Bone"
-        # Set the bone's head
-        bone.head = mathutils.Vector((0,0,0))
-        # Set the bone's tail
-        bone.tail = mathutils.Vector((0,0,1))
-        # Set the bone's roll
-        bone.roll = 0
-        # Set the bone's parent
-        bone.parent = armature.edit_bones[0]
-        # Set the bone's name
 
 
 
