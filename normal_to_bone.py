@@ -47,7 +47,7 @@ class ArmatureSelector(bpy.types.Panel):
         armature_list = self.ArmatureLister()
 
         bpy.types.Scene.armature_list = EnumProperty(
-            name="Armatures To Place Bones",
+            name="Rigs",
             items=armature_list,
             description="Armatures",
             default=armature_list[0][0],
@@ -56,11 +56,14 @@ class ArmatureSelector(bpy.types.Panel):
     def draw(self, context):
 
         layout = self.layout
-        layout.use_property_split = True
+        # layout.use_property_split = True
 
         box = layout.box()
+        box.scale_y = 1.75
         box.label(text="Select Armature")
         box.prop(context.scene, "armature_list")
+        box.separator()
+        box.operator("object.normal_to_bone", text="Create Bone")
 
     def ArmatureLister(self):
         list_of_armatures = []
@@ -68,7 +71,7 @@ class ArmatureSelector(bpy.types.Panel):
         armature_list = bpy.data.armatures
         # Get the list of all Armatures in the scene
         for i, armature in enumerate(armature_list):
-            new_armature = (armature.name, armature.name, armature.name, i)
+            new_armature = (armature.name, armature.name, f"Choose {armature.name}", i)
             list_of_armatures.append(new_armature)
             print(armature.name)
         return list_of_armatures
