@@ -114,7 +114,8 @@ class NormalToBone(bpy.types.Operator):
                     v1 = mesh_components[i].vertices[0]
                     v2 = mesh_components[i].vertices[1]
                     normal = (mesh.vertices[v1].normal + mesh.vertices[v2].normal) / 2
-                    location = mesh.vertices[v1].co + mesh.vertices[v2].co
+                    # the position between two vertices
+                    location = (mesh.vertices[v1].co + mesh.vertices[v2].co) / 2
 
                 elif mesh_components.bl_rna.name == "Mesh Polygons":
                     location = mesh_components[i].center
