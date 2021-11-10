@@ -165,26 +165,28 @@ class NormalToBone(bpy.types.Operator):
 
         cur_obj = bpy.data.objects[ob.name]
         cur_armature_obj = bpy.data.objects[armature.name]
+
+        bpy.ops.object.mode_set(mode="OBJECT")
+        cur_obj.select_set(False)
         #
         bpy.context.view_layer.objects.active = cur_armature_obj
+        cur_armature_obj.select_set(True)
 
         bpy.ops.object.mode_set(mode="EDIT", toggle=False)
         print("HAPPENING")
 
-        # Get the armature data
-        armature_data = bpy.data.armatures[armature.name]
-        # Get the edit mode armature
         edit_armature = bpy.context.active_object.data
         print(edit_armature)
-        # Get the edit mode armature data
-        edit_armature_data = bpy.context.object.data
 
         # if bpy.data.armatures[armature.name].edit_bones.active:
 
-        for pos, normal in pos_dirs:
+        for pos_dir in pos_dirs:
             # normal,rot_euler,angle = self.NormalToRotation(dir)
             bone = edit_armature.edit_bones.new("Aligned-Bone")
             # Set the bone's length
+            pos = pos_dir[0]
+            normal = pos_dir[1]
+
             bone.head = pos
             # bone.tail = pos + (bone.vector.normalized() * 0.5)
             bone.tail = pos + (normal.normalized() * 0.5)
@@ -195,7 +197,11 @@ class NormalToBone(bpy.types.Operator):
             bone.roll = 0
 
         # bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
+        cur_armature_obj.select_set(False)
+        bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
+
         bpy.context.view_layer.objects.active = cur_obj
+        cur_obj.select_set(True)
         bpy.ops.object.mode_set(mode="EDIT", toggle=False)
 
 
