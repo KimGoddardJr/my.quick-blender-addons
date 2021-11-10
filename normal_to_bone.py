@@ -23,18 +23,6 @@ bl_info = {
 }
 
 
-def ArmatureLister():
-    list_of_armatures = []
-    # Get the list of all Armatures in the scene
-    armature_list = bpy.data.armatures
-    # Get the list of all Armatures in the scene
-    for i, armature in enumerate(armature_list):
-        new_armature = (armature.name, armature.name, armature.name, i)
-        list_of_armatures.append(new_armature)
-        print(armature.name)
-    return list_of_armatures
-
-
 # Get the list of all Armatures in the scene
 armature_list = [
     ("Armature", "Armature", "All Blades", 0),
@@ -42,12 +30,6 @@ armature_list = [
     ("Armature.002", "Armature.002", "Blades with D500 GPU", 2),
 ]
 
-bpy.types.Scene.armature_list = EnumProperty(
-    name="Armatures To Place Bones",
-    items=armature_list,
-    description="Armatures",
-    default=armature_list[0][0],
-)
 
 # Blender Enum Widget showing all available Armatures in the scene
 # Blender Menu Tab with bl_options
@@ -60,6 +42,17 @@ class ArmatureSelector(bpy.types.Panel):
     bl_category = "Tool"
     bl_options = {"DEFAULT_CLOSED"}
 
+    def __init__(self):
+
+        armature_list = self.ArmatureLister()
+
+        bpy.types.Scene.armature_list = EnumProperty(
+            name="Armatures To Place Bones",
+            items=armature_list,
+            description="Armatures",
+            default=armature_list[0][0],
+        )
+
     def draw(self, context):
 
         layout = self.layout
@@ -68,6 +61,17 @@ class ArmatureSelector(bpy.types.Panel):
         box = layout.box()
         box.label(text="Select Armature")
         box.prop(context.scene, "armature_list")
+
+    def ArmatureLister(self):
+        list_of_armatures = []
+        # Get the list of all Armatures in the scene
+        armature_list = bpy.data.armatures
+        # Get the list of all Armatures in the scene
+        for i, armature in enumerate(armature_list):
+            new_armature = (armature.name, armature.name, armature.name, i)
+            list_of_armatures.append(new_armature)
+            print(armature.name)
+        return list_of_armatures
 
 
 class NormalToBone(bpy.types.Operator):
@@ -172,7 +176,12 @@ class NormalToBone(bpy.types.Operator):
         # switch armature to edit mode
 
         cur_obj = bpy.data.objects[ob.name]
-        cur_armature_obj = bpy.data.objects[armature.name]
+
+        cur_armature_obj = [
+            obj
+            for obj in bpy.data.objects
+            if obj.data.rna_type.name == "Armature" and obj.data.name == armature.name
+        ][0]
 
         bpy.ops.object.mode_set(mode="OBJECT")
         cur_obj.select_set(False)
