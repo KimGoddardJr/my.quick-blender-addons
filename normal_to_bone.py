@@ -98,17 +98,20 @@ class NormalToBone(bpy.types.Operator):
         # Get the rotation euler
         rot_euler = rot_quat.to_euler()
         
-        return rot_euler,angle
+        return rot_euler
 
     def CreateBoneAlignedToNormal(self,armature,pos_dirs):
 
-        for pos, dir in pos_dirs:
-            rot_euler,angle = self.NormalToRotation(dir)
+        for pos,normal in pos_dirs:
+            # normal,rot_euler,angle = self.NormalToRotation(dir)
             bone = armature.edit_bones.new("Aligned-Bone")
             # Set the bone's length
             bone.head = pos
-            bone.tail = pos + (bone.vector.normalized() * 0.5)
-            bone.matrix.Rotation(angle,4,'Z')
+            #bone.tail = pos + (bone.vector.normalized() * 0.5)
+            bone.tail = pos + (normal.normalized() * 0.5)
+
+            #Rotate the whole bone aligned 
+            # bone.matrix.rotate(rot_euler)
             # Set the bone's roll
             bone.roll = 0
 
