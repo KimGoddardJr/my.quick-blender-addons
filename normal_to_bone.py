@@ -122,7 +122,8 @@ class NormalToBone(bpy.types.Operator):
 
                 loc_and_norm = (location, normal)
 
-        loc_and_norms.append(loc_and_norm)
+                loc_and_norms.append(loc_and_norm)
+
         print(loc_and_norms)
 
         return loc_and_norms
@@ -142,7 +143,7 @@ class NormalToBone(bpy.types.Operator):
         elif mode == "EDGE":
             pos_dirs = self.GetLocationAndNormals(me, me.edges)
 
-        self.CreateBoneAlignedToNormal(armature, pos_dirs)
+        self.CreateBoneAlignedToNormal(obj, armature, pos_dirs)
 
     # Convert the normal of a vertex to a rotational value
     def NormalToRotation(self, normal):
@@ -159,7 +160,12 @@ class NormalToBone(bpy.types.Operator):
 
         return rot_euler
 
-    def CreateBoneAlignedToNormal(self, armature, pos_dirs):
+    def CreateBoneAlignedToNormal(self, ob, armature, pos_dirs):
+        # switch armature to edit mode
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.data.objects[ob.name].select_set(False)
+        bpy.data.objects[armature.name].select_set(True)
+        bpy.ops.object.mode_set(mode="EDIT")
 
         for pos, normal in pos_dirs:
             # normal,rot_euler,angle = self.NormalToRotation(dir)
@@ -173,6 +179,11 @@ class NormalToBone(bpy.types.Operator):
             # bone.matrix.rotate(rot_euler)
             # Set the bone's roll
             bone.roll = 0
+
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.data.objects[armature.name].select_set(False)
+        bpy.data.objects[ob.name].select_set(True)
+        bpy.ops.object.mode_set(mode="EDIT")
 
 
 # Add the Normal To Bone Operator to a Pie Menu
