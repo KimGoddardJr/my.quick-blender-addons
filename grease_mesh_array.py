@@ -19,12 +19,12 @@
 
 
 bl_info = {
-    "name": "King Goddard Jrs Custom Plugins",
+    "name": "Grease to Mesh",
     "author": "King Goddard Jr",
     "version": (1, 0, 0),
     "blender": (2, 90, 0),
     "location": "3D View",
-    "description": "a couple of custom scripts",
+    "description": "make a mesh out of grease Pencil",
     "wiki_url": "",
     "tracker_url": "",
     "category": "Object"}

@@ -1,28 +1,65 @@
 import bpy
+from bpy.props import IntProperty, StringProperty, BoolProperty, FloatProperty, EnumProperty
 import mathutils
 import math
 import numpy as np
 
+bl_info = {
+    "name": "Bone from Normal",
+    "author": "King Goddard Jr",
+    "version": (1, 0, 0),
+    "blender": (2, 93, 0),
+    "location": "3D View",
+    "description": "creates a Bone in an Armature aligned to the normals of selected mesh component",
+    "wiki_url": "",
+    "tracker_url": "",
+    "category": "Object"}
+
+
 
 #Blender Enum Widget showing all available Armatures in the scene
 #Blender Menu Tab with bl_options
-class ArmatureSelector(bpy.types.MenuItem):
-    bl_idname = "OBJECT_MT_armature_selector"
-    bl_label = "Armature Selector"
+class ArmatureSelector(bpy.types.Panel):
+
+    bl_idname = "HSLUCUSTOMPLUGINS_PT_plugins"
+    bl_label = "HSLU Normal To Bone"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Tool"
+
+    def __init__(self):
+
+        # Get the list of all Armatures in the scene
+        armature_list = self.ArmatureLister
+        bpy.types.Scene.armature_list = EnumProperty(
+        name="Armatures To Place Bones",
+        items=armature_list,
+        description="Armatures",
+        default="ALL",
+        )
+
 
     def draw(self, context):
+
         layout = self.layout
-        layout.operator_context = 'INVOKE_DEFAULT'
-        layout.operator(self.ArmatureLister.bl_idname, text="Armature List")
-        layout.operator(ArmatureSelector.bl_idname, text="Armature Selector")
+        layout.use_property_split = True
+        
+        box = layout.box()
+        box.label(text="Select Armature")
+        box.prop(context.scene, "armature_list")
 
 
     def ArmatureLister(self):
+        list_of_armatures = []
         # Get the list of all Armatures in the scene
         armature_list = bpy.data.armatures
         # Get the list of all Armatures in the scene
-        for armature in armature_list:
+        for i,armature in enumerate(armature_list):
+            new_armature = (armature.name,armature.name,armature.name, i)
+            list_of_armatures.append(new_armature)
             print(armature.name)
+        return list_of_armatures
+
 
 
 
