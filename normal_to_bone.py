@@ -85,7 +85,7 @@ class NormalToBone(bpy.types.Operator):
         print(context.active_object.mode)
         # find out wether is in face selection, vertex selection or edge selection
         # find out if vertices, faces or edges are selected in editmode
-        if context.active_object.mode == "EDIT":
+        # if context.active_object.mode == "EDIT":
 
         if context.active_object.mode == "EDIT":
             if context.active_object.type == "MESH":
