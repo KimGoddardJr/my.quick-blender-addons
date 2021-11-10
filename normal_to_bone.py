@@ -24,6 +24,9 @@ class ArmatureSelector(bpy.types.MenuItem):
         for armature in armature_list:
             print(armature.name)
 
+
+
+
 class NormalToBone(bpy.types.Operator):
     """Tooltip"""
     bl_idname = "object.normal_to_bone"
@@ -78,9 +81,8 @@ class NormalToBone(bpy.types.Operator):
         elif mode == 'EDGE':
             pos_dirs = self.GetLocationAndNormals(me,me.edges)
 
-        for pos, dir in pos_dirs:
-            rot_euler = self.NormalToRotation(dir)
-            self.CreateBoneAlignedToNormal(armature,pos,rot_euler)
+        
+        self.CreateBoneAlignedToNormal(armature,pos_dirs)
 
 
     # Convert the normal of a vertex to a rotational value
@@ -96,18 +98,19 @@ class NormalToBone(bpy.types.Operator):
         # Get the rotation euler
         rot_euler = rot_quat.to_euler()
         
-        return rot_euler
+        return rot_euler,angle
 
-    def CreateBoneAlignedToNormal(self,armature,pos,rot):
-        
-        bone = armature.edit_bones.new("Bone")
-        # Set the bone's length
-        bone.head = pos
-        bone.tail = pos + (bone.vector.normalized() * 0.5)
+    def CreateBoneAlignedToNormal(self,armature,pos_dirs):
 
-        bone.rotation_euler = rot
-        # Set the bone's roll
-        bone.roll = 0
+        for pos, dir in pos_dirs:
+            rot_euler,angle = self.NormalToRotation(dir)
+            bone = armature.edit_bones.new("Aligned-Bone")
+            # Set the bone's length
+            bone.head = pos
+            bone.tail = pos + (bone.vector.normalized() * 0.5)
+            bone.matrix.Rotation(angle,4,'Z')
+            # Set the bone's roll
+            bone.roll = 0
 
 
 
