@@ -103,14 +103,16 @@ class NormalToBone(bpy.types.Operator):
         # Get the component index
         loc_and_norms = []
         print(mesh_components)
-        num_verts = len(mesh_components)
-        sel = np.zeros(num_verts, dtype=np.bool)
+        num_components = len(mesh_components)
+        sel = np.zeros(num_components, dtype=np.bool)
         mesh_components.foreach_get("select", sel)
 
-        print(selss)
+        print(sel)
         for i, component in enumerate(sel):
             if component:
+                print(i)
                 normal = mesh_components[i].normal
+
                 if mesh_components.bl_rna.name == "Mesh Vertices":
                     location = mesh_components[i].co
                 elif mesh_components.bl_rna.name == "Mesh Edges":
@@ -141,6 +143,8 @@ class NormalToBone(bpy.types.Operator):
         if mode == "VERTEX":
             pos_dirs = self.GetLocationAndNormals(me, me.vertices)
         elif mode == "FACE":
+            bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
+            bpy.ops.object.mode_set(mode="EDIT", toggle=False)
             pos_dirs = self.GetLocationAndNormals(me, me.polygons)
         elif mode == "EDGE":
             pos_dirs = self.GetLocationAndNormals(me, me.edges)
