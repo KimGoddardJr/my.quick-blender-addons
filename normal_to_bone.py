@@ -88,15 +88,8 @@ class NormalToBone(bpy.types.Operator):
         # if context.active_object.mode == "EDIT":
 
         if context.active_object.mode == "EDIT":
-            if context.active_object.type == "MESH":
-                self.SetBoneNormal(context.active_object, "FACE")
+            self.SetBoneNormal(context.active_object)
 
-        # if context.active_object.mode == "EDIT":
-        #     self.SetBoneNormal(context.active_object, "FACE")
-        # elif context.active_object.mode == "OBJECT":
-        #     self.SetBoneNormal(context.active_object, "VERTEX")
-        # elif context.active_object.mode == "EDIT_MESH":
-        #     self.SetBoneNormal(context.active_object, "EDGE")
         return {"FINISHED"}
 
     def GetLocationAndNormals(self, mesh, mesh_components):
@@ -133,20 +126,25 @@ class NormalToBone(bpy.types.Operator):
         return loc_and_norms
 
     # get the normal of selected vertex or face or edge
-    def SetBoneNormal(self, obj, mode):
+    def SetBoneNormal(self, obj):
         # Cur value of enum
+        sel_modes = bpy.context.tool_settings.mesh_select_mode
+        VERTEX = sel_modes[0]
+        EDGES = sel_modes[1]
+        FACES = sel_modes[2]
+
         armature = bpy.data.armatures[bpy.context.scene.armature_list]
         # Get the selected object
         me = obj.data
         print(me)
         # Get the selected mode
-        if mode == "VERTEX":
+        bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
+        bpy.ops.object.mode_set(mode="EDIT", toggle=False)
+        if VERTEX:
             pos_dirs = self.GetLocationAndNormals(me, me.vertices)
-        elif mode == "FACE":
-            bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
-            bpy.ops.object.mode_set(mode="EDIT", toggle=False)
+        elif FACES:
             pos_dirs = self.GetLocationAndNormals(me, me.polygons)
-        elif mode == "EDGE":
+        elif EDGES:
             pos_dirs = self.GetLocationAndNormals(me, me.edges)
 
         self.CreateBoneAlignedToNormal(obj, armature, pos_dirs)
