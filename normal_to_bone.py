@@ -104,18 +104,21 @@ class NormalToBone(bpy.types.Operator):
         for i, component in enumerate(sel):
             if component:
                 print(i)
-                normal = mesh_components[i].normal
 
                 if mesh_components.bl_rna.name == "Mesh Vertices":
                     location = mesh_components[i].co
+                    normal = mesh_components[i].normal
+
                 elif mesh_components.bl_rna.name == "Mesh Edges":
                     # the normal is the average of the two vertex normals of the edge
                     v1 = mesh_components[i].vertices[0]
                     v2 = mesh_components[i].vertices[1]
                     normal = (mesh.vertices[v1].normal + mesh.vertices[v2].normal) / 2
                     location = mesh.vertices[v1].co + mesh.vertices[v2].co
+
                 elif mesh_components.bl_rna.name == "Mesh Polygons":
                     location = mesh_components[i].center
+                    normal = mesh_components[i].normal
 
                 loc_and_norm = (location, normal)
 
