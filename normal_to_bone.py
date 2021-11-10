@@ -23,6 +23,32 @@ bl_info = {
 }
 
 
+def ArmatureLister():
+    list_of_armatures = []
+    # Get the list of all Armatures in the scene
+    armature_list = bpy.data.armatures
+    # Get the list of all Armatures in the scene
+    for i, armature in enumerate(armature_list):
+        new_armature = (armature.name, armature.name, armature.name, i)
+        list_of_armatures.append(new_armature)
+        print(armature.name)
+    return list_of_armatures
+
+
+# Get the list of all Armatures in the scene
+armature_list = [
+    ("Armature", "Armature", "All Blades", 0),
+    ("Armature.001", "Armature.001", "Blades with D300 GPU", 1),
+    ("Armature.002", "Armature.002", "Blades with D500 GPU", 2),
+]
+
+bpy.types.Scene.armature_list = EnumProperty(
+    name="Armatures To Place Bones",
+    items=armature_list,
+    description="Armatures",
+    default=armature_list[0][0],
+)
+
 # Blender Enum Widget showing all available Armatures in the scene
 # Blender Menu Tab with bl_options
 class ArmatureSelector(bpy.types.Panel):
@@ -32,17 +58,7 @@ class ArmatureSelector(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Tool"
-
-    def __init__(self):
-
-        # Get the list of all Armatures in the scene
-        armature_list = self.ArmatureLister
-        bpy.types.Scene.armature_list = EnumProperty(
-            name="Armatures To Place Bones",
-            items=armature_list,
-            description="Armatures",
-            default="ALL",
-        )
+    bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
 
@@ -52,17 +68,6 @@ class ArmatureSelector(bpy.types.Panel):
         box = layout.box()
         box.label(text="Select Armature")
         box.prop(context.scene, "armature_list")
-
-    def ArmatureLister(self):
-        list_of_armatures = []
-        # Get the list of all Armatures in the scene
-        armature_list = bpy.data.armatures
-        # Get the list of all Armatures in the scene
-        for i, armature in enumerate(armature_list):
-            new_armature = (armature.name, armature.name, armature.name, i)
-            list_of_armatures.append(new_armature)
-            print(armature.name)
-        return list_of_armatures
 
 
 class NormalToBone(bpy.types.Operator):
@@ -76,7 +81,22 @@ class NormalToBone(bpy.types.Operator):
         return context.active_object is not None
 
     def execute(self, context):
-        self.SetBoneNormal(context.active_object, context.mode)
+        print(context.active_object)
+        print(context.active_object.mode)
+        # find out wether is in face selection, vertex selection or edge selection
+        # find out if vertices, faces or edges are selected in editmode
+        if context.active_object.mode == "EDIT":
+
+        if context.active_object.mode == "EDIT":
+            if context.active_object.type == "MESH":
+                self.SetBoneNormal(context.active_object, "FACE")
+
+        if context.active_object.mode == "EDIT":
+            self.SetBoneNormal(context.active_object, "FACE")
+        elif context.active_object.mode == "OBJECT":
+            self.SetBoneNormal(context.active_object, "VERTEX")
+        elif context.active_object.mode == "EDIT_MESH":
+            self.SetBoneNormal(context.active_object, "EDGE")
         return {"FINISHED"}
 
     def GetLocationAndNormals(self, mesh, mesh_components):
