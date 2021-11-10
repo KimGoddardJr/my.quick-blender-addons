@@ -91,34 +91,36 @@ class NormalToBone(bpy.types.Operator):
             if context.active_object.type == "MESH":
                 self.SetBoneNormal(context.active_object, "FACE")
 
-        if context.active_object.mode == "EDIT":
-            self.SetBoneNormal(context.active_object, "FACE")
-        elif context.active_object.mode == "OBJECT":
-            self.SetBoneNormal(context.active_object, "VERTEX")
-        elif context.active_object.mode == "EDIT_MESH":
-            self.SetBoneNormal(context.active_object, "EDGE")
+        # if context.active_object.mode == "EDIT":
+        #     self.SetBoneNormal(context.active_object, "FACE")
+        # elif context.active_object.mode == "OBJECT":
+        #     self.SetBoneNormal(context.active_object, "VERTEX")
+        # elif context.active_object.mode == "EDIT_MESH":
+        #     self.SetBoneNormal(context.active_object, "EDGE")
         return {"FINISHED"}
 
     def GetLocationAndNormals(self, mesh, mesh_components):
         # Get the component index
         loc_and_norms = []
+        print(mesh_components)
         num_verts = len(mesh_components)
         sel = np.zeros(num_verts, dtype=np.bool)
         mesh_components.foreach_get("select", sel)
 
-        for component in sel:
+        print(selss)
+        for i, component in enumerate(sel):
             if component:
-                normal = mesh_components[component].normal
+                normal = mesh_components[i].normal
                 if mesh_components.bl_rna.name == "Mesh Vertices":
-                    location = mesh_components[component].co
+                    location = mesh_components[i].co
                 elif mesh_components.bl_rna.name == "Mesh Edges":
                     # the normal is the average of the two vertex normals of the edge
-                    v1 = mesh_components[component].vertices[0]
-                    v2 = mesh_components[component].vertices[1]
+                    v1 = mesh_components[i].vertices[0]
+                    v2 = mesh_components[i].vertices[1]
                     normal = (mesh.vertices[v1].normal + mesh.vertices[v2].normal) / 2
                     location = mesh.vertices[v1].co + mesh.vertices[v2].co
                 elif mesh_components.bl_rna.name == "Mesh Polygons":
-                    location = mesh_components[component].center
+                    location = mesh_components[i].center
 
                 loc_and_norm = (location, normal)
 
