@@ -162,14 +162,28 @@ class NormalToBone(bpy.types.Operator):
 
     def CreateBoneAlignedToNormal(self, ob, armature, pos_dirs):
         # switch armature to edit mode
-        bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.data.objects[ob.name].select_set(False)
-        bpy.data.objects[armature.name].select_set(True)
-        bpy.ops.object.mode_set(mode="EDIT")
+
+        cur_obj = bpy.data.objects[ob.name]
+        cur_armature_obj = bpy.data.objects[armature.name]
+        #
+        bpy.context.view_layer.objects.active = cur_armature_obj
+
+        bpy.ops.object.mode_set(mode="EDIT", toggle=False)
+        print("HAPPENING")
+
+        # Get the armature data
+        armature_data = bpy.data.armatures[armature.name]
+        # Get the edit mode armature
+        edit_armature = bpy.context.active_object.data
+        print(edit_armature)
+        # Get the edit mode armature data
+        edit_armature_data = bpy.context.object.data
+
+        # if bpy.data.armatures[armature.name].edit_bones.active:
 
         for pos, normal in pos_dirs:
             # normal,rot_euler,angle = self.NormalToRotation(dir)
-            bone = armature.edit_bones.new("Aligned-Bone")
+            bone = edit_armature.edit_bones.new("Aligned-Bone")
             # Set the bone's length
             bone.head = pos
             # bone.tail = pos + (bone.vector.normalized() * 0.5)
@@ -180,10 +194,9 @@ class NormalToBone(bpy.types.Operator):
             # Set the bone's roll
             bone.roll = 0
 
-        bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.data.objects[armature.name].select_set(False)
-        bpy.data.objects[ob.name].select_set(True)
-        bpy.ops.object.mode_set(mode="EDIT")
+        # bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
+        bpy.context.view_layer.objects.active = cur_obj
+        bpy.ops.object.mode_set(mode="EDIT", toggle=False)
 
 
 # Add the Normal To Bone Operator to a Pie Menu
