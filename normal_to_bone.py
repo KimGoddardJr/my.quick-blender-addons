@@ -1,13 +1,8 @@
 import bpy
-from bpy.props import (
-    IntProperty,
-    StringProperty,
-    BoolProperty,
-    FloatProperty,
-    EnumProperty,
-)
-import mathutils
-import math
+from bpy.props import EnumProperty
+
+# import mathutils
+# import math
 import numpy as np
 
 bl_info = {
