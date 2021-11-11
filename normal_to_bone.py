@@ -214,6 +214,7 @@ class NormalToBone(bpy.types.Operator):
         bpy.ops.object.mode_set(mode="EDIT", toggle=False)
 
 
+"""
 # Add the Normal To Bone Operator to a Pie Menu
 class NormalToBonePie(bpy.types.Menu):
     bl_idname = "object.normal_to_bone_pie"
@@ -225,9 +226,10 @@ class NormalToBonePie(bpy.types.Menu):
         pie.operator("object.normal_to_bone", text="Vertex", icon="VERTEXSEL")
         pie.operator("object.normal_to_bone", text="Face", icon="FACESEL")
         pie.operator("object.normal_to_bone", text="Edge", icon="EDGESEL")
+"""
 
 
-classes = [NormalToBone, ArmatureSelector, NormalToBonePie]
+classes = [NormalToBone, ArmatureSelector]
 
 
 def register():
