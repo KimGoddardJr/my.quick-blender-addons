@@ -23,14 +23,6 @@ bl_info = {
 }
 
 
-# Get the list of all Armatures in the scene
-armature_list = [
-    ("Armature", "Armature", "All Blades", 0),
-    ("Armature.001", "Armature.001", "Blades with D300 GPU", 1),
-    ("Armature.002", "Armature.002", "Blades with D500 GPU", 2),
-]
-
-
 # Blender Enum Widget showing all available Armatures in the scene
 # Blender Menu Tab with bl_options
 class ArmatureSelector(bpy.types.Panel):
@@ -160,6 +152,7 @@ class NormalToBone(bpy.types.Operator):
 
         self.CreateBoneAlignedToNormal(obj, armature, pos_dirs)
 
+    """ 
     # Convert the normal of a vertex to a rotational value
     def NormalToRotation(self, normal):
         # Get the normal of the component
@@ -174,6 +167,7 @@ class NormalToBone(bpy.types.Operator):
         rot_euler = rot_quat.to_euler()
 
         return rot_euler
+    """
 
     def CreateBoneAlignedToNormal(self, ob, armature, pos_dirs):
         # switch armature to edit mode
