@@ -1,5 +1,17 @@
 import bpy
 
+bl_info = {
+    "name": "Transfer many Shape Keys",
+    "author": "King Goddard Jr",
+    "version": (1, 0, 0),
+    "blender": (2, 93, 0),
+    "location": "3D View",
+    "description": "Transfers many shapekeys at once from Source Mesh to Target Mesh",
+    "wiki_url": "",
+    "tracker_url": "",
+    "category": "Object",
+}
+
 
 class TransferAllShapeKeys(bpy.types.Operator):
     """Tooltip"""
