@@ -22,7 +22,7 @@ bl_info = {
 # Blender Menu Tab with bl_options
 class ArmatureSelector(bpy.types.Panel):
 
-    bl_idname = "HSLUCUSTOMPLUGINS_PT_plugins"
+    bl_idname = "HSLUCUSTOMPLUGINS_PT_NormalToBone"
     bl_label = "HSLU Normal To Bone"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
