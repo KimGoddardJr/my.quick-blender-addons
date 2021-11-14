@@ -26,15 +26,18 @@ class reset_deltas(bpy.types.Operator):
     bl_label = "Cleans up all the deltas"
     bl_options = {"REGISTER", "UNDO"}
 
+    def __init__(self):
+        self.mode = bpy.context.object.rotation_mode
+
     def execute(self, context):
         for obj in context.selected_objects:
             # raw location data
             obj_L = obj.location
-            obj_R = obj.rotation_euler
+            obj_R = obj.rotation_euler.copy()
             obj_S = obj.scale
 
             obj_deltaL = obj.delta_location
-            obj_deltaR = obj.delta_rotation_euler
+            obj_deltaR = obj.delta_rotation_euler.copy()
             obj_deltaS = obj.delta_scale
 
             # convert to np array for quick math
@@ -53,40 +56,25 @@ class reset_deltas(bpy.types.Operator):
             # multiply scale
             obj_S_new = np.multiply(obj_deltaS_np, obj_S_np)
 
-            # Get the axis of obj_R
-            print("-----------")
-            print(obj_R_np)
-            print("-----------")
-            print(obj_deltaR_np)
-            print("-----------")
+            if self.mode != "QUATERNION" or self.mode != "AXIS_ANGLE":
 
-            # convert back to tuple
-            obj_R_conv = obj_R_np.tolist()
-            obj_deltaR_conv = obj_deltaR_np.tolist()
+                cur_or = bpy.context.scene.transform_orientation_slots[0].type
 
-            obj_R_axis = mathutils.Vector.to_track_quat(
-                obj_R_conv[0], obj_R_conv[1], obj_R_conv[2], "Z", "Y"
-            )
-            # Get the axis of obj_deltaR
-            obj_deltaR_axis = mathutils.Vector.to_track_quat(
-                obj_deltaR_conv[0], obj_deltaR_conv[1], obj_deltaR_conv[2], "Z", "Y"
-            )
-            # Add obj_deltaR_axis to obj_R_axis
-            obj_R_new = obj_R_axis.__add__(obj_deltaR_axis)
-            # Convert back to euler
-            obj_R_new = obj_R_new.to_euler()
+                bpy.context.scene.transform_orientation_slots[0].type = "GLOBAL"
 
-            # obj_S_compensated = obj_S_new.__add__(obj_S_compensator)
+                # Assign new values to transforms as tuples
+                obj.location = tuple(obj_L_new)
+                obj.delta_location = (0, 0, 0)
 
-            # Assign new values to transforms as tuples
-            obj.location = tuple(obj_L_new)
-            obj.delta_location = (0, 0, 0)
-            obj.rotation_euler = obj_R_new
-            obj.delta_rotation_euler = (0, 0, 0)
-            obj.scale = tuple(obj_S_new)
-            obj.delta_scale = (1, 1, 1)
+                obj.rotation_euler.rotate(obj_deltaR)
+                obj.delta_rotation_euler = (0, 0, 0)
 
-        return {"FINISHED"}
+                obj.scale = tuple(obj_S_new)
+                obj.delta_scale = (1, 1, 1)
+
+                bpy.context.scene.transform_orientation_slots[0].type = cur_or
+
+            return {"FINISHED"}
 
 
 def menu_func(self, context):
