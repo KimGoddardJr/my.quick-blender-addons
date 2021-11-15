@@ -31,14 +31,18 @@ class ArmatureSelector(bpy.types.Panel):
 
     def __init__(self):
 
-        armature_list = self.ArmatureLister()
+        try:
 
-        bpy.types.Scene.armature_list = EnumProperty(
-            name="Rigs",
-            items=armature_list,
-            description="Armatures",
-            default=armature_list[0][0],
-        )
+            armature_list = self.ArmatureLister()
+
+            bpy.types.Scene.armature_list = EnumProperty(
+                name="Rigs",
+                items=armature_list,
+                description="Armatures",
+                default=armature_list[0][0],
+            )
+        except Exception as e:
+            print("Exception in __init__: ", e)
 
     def draw(self, context):
 
@@ -48,9 +52,12 @@ class ArmatureSelector(bpy.types.Panel):
         box = layout.box()
         box.scale_y = 1.75
         box.label(text="Select Armature")
-        box.prop(context.scene, "armature_list")
-        box.separator()
-        box.operator("object.normal_to_bone", text="Create Bone")
+        if len(bpy.data.armatures) >= 1:
+            box.prop(context.scene, "armature_list")
+            box.separator()
+            box.operator("object.normal_to_bone", text="Create Bone")
+        else:
+            box.label(text="No Armatures in the Scene")
 
     def ArmatureLister(self):
         list_of_armatures = []
